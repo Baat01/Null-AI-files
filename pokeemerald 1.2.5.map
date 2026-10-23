@@ -4019,7 +4019,7 @@ Linker script and memory map
                 0x0000000000000000                gMaxLines = 0x0
                 0x00000000081a8cbc                gInitialMainCB2 = CB2_InitCopyrightScreenAfterBootup
 
-.ewram          0x0000000002000000        0x0 load address 0x0000000009bd6230
+.ewram          0x0000000002000000        0x0 load address 0x0000000009bd6244
                 0x0000000002000000                __ewram_start = .
  *(.ewram*)
                 0x0000000002000000                . = ALIGN (0x4)
@@ -4806,7 +4806,7 @@ Linker script and memory map
  *libc.a:locale.o(.data)
  *libc.a:mallocr.o(.data)
 
-.iwram          0x0000000003000000        0x0 load address 0x0000000009bd6230
+.iwram          0x0000000003000000        0x0 load address 0x0000000009bd6244
                 0x0000000003000000                __iwram_start = .
  *(.iwram*)
                 0x0000000003000000                . = ALIGN (0x4)
@@ -55615,7 +55615,7 @@ gfx_data        0x0000000009672804   0x553820
                 0x0000000009bc54c4                gBerryCrush_Crusher_Gfx
                 0x0000000009bc5fe0                gBerryCrush_TextWindows_Tilemap
 
-extra           0x0000000009bc6028    0x10207
+extra           0x0000000009bc6028    0x1021b
  src/*.o(.text)
  .text          0x0000000009bc6028        0x0 src/debug.o
  .text          0x0000000009bc6028     0xc0dc src/pokedex_plus_hgss.o
@@ -55642,24 +55642,24 @@ extra           0x0000000009bc6028    0x10207
  *fill*         0x0000000009bd46b4        0x4 00000000
  .text.__stub   0x0000000009bd46b8      0x910 linker stubs
  src/*.o(.rodata)
- .rodata        0x0000000009bd4fc8     0x11ab src/pokedex_plus_hgss.o
- *fill*         0x0000000009bd6173        0x1 00000000
- .rodata        0x0000000009bd6174       0xb8 src/battle_end_turn.o
- .rodata        0x0000000009bd622c        0x3 src/test_runner_stub.o
-                0x0000000009bd622c                gTestRunnerEnabled
-                0x0000000009bd622d                gTestRunnerHeadless
-                0x0000000009bd622e                gTestRunnerSkipIsFail
+ .rodata        0x0000000009bd4fc8     0x11bd src/pokedex_plus_hgss.o
+ *fill*         0x0000000009bd6185        0x3 00000000
+ .rodata        0x0000000009bd6188       0xb8 src/battle_end_turn.o
+ .rodata        0x0000000009bd6240        0x3 src/test_runner_stub.o
+                0x0000000009bd6240                gTestRunnerEnabled
+                0x0000000009bd6241                gTestRunnerHeadless
+                0x0000000009bd6242                gTestRunnerSkipIsFail
  gflib/*.o(.rodata)
  data/*.o(.rodata)
 
-.data.iwram     0x0000000009bd6230        0x0
-                0x0000000009bd6230                __iwram_lma = .
-                0x0000000009bd6230                . = (. + (__iwram_end - __iwram_start))
+.data.iwram     0x0000000009bd6244        0x0
+                0x0000000009bd6244                __iwram_lma = .
+                0x0000000009bd6244                . = (. + (__iwram_end - __iwram_start))
 
-.data.ewram     0x0000000009bd6230        0x0
-                0x0000000009bd6230                __ewram_lma = .
-                0x0000000009bd6230                . = (. + (__ewram_end - __ewram_start))
-                0x0000000009bd6230                __rom_end = .
+.data.ewram     0x0000000009bd6244        0x0
+                0x0000000009bd6244                __ewram_lma = .
+                0x0000000009bd6244                . = (. + (__ewram_end - __ewram_start))
+                0x0000000009bd6244                __rom_end = .
 
 .debug
  *(.debug)
