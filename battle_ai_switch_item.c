@@ -185,7 +185,9 @@ s32 AI_CalcPartyMonScore(u32 battlerAtk, u32 battlerDef, struct Pokemon *attacke
     u8 effectiveness;
     s32 attackerHP = 0;
     s32 defenderHP = 0;
+    s32 hazardAmount = 0;
     u16 atkAbility = 0;
+    u32 choicedUnusableAtk, choicedUnusableDef;
     struct BattlePokemon *savedBattleMons = AllocSaveBattleMons();
     bestDmg = 0;
     bestDmgTaken = 0;
@@ -194,10 +196,13 @@ s32 AI_CalcPartyMonScore(u32 battlerAtk, u32 battlerDef, struct Pokemon *attacke
     SetBattlerAiData(battlerAtk);
     SetBattlerAiData(battlerDef);
     atkAbility = GetBattlerAbility(battlerAtk);
+    choicedUnusableAtk = CheckMoveLimitations(battlerAtk, 0, MOVE_LIMITATION_CHOICE_ITEM);
+    choicedUnusableDef = CheckMoveLimitations(battlerDef, 0, MOVE_LIMITATION_CHOICE_ITEM);
 
     //Clear edge cases
     gStatuses3[battlerAtk] &= ~STATUS3_GASTRO_ACID;
     gDisableStructs[battlerAtk].usedMoves = 0;
+    gBattleStruct->stompingTantrumTimer[battlerAtk] = 0;
     for (i = 0; i < MAX_MON_MOVES; i++)
     {
         move = gBattleMons[battlerAtk].moves[i];
@@ -206,6 +211,7 @@ s32 AI_CalcPartyMonScore(u32 battlerAtk, u32 battlerDef, struct Pokemon *attacke
         }
         if (!GetImprisonedMovesCount(battlerAtk, move) 
             && !IsGravityPreventingMove(move)
+            && !(choicedUnusableAtk & gBitTable[i])
             && gBattleMons[battlerAtk].pp[i] != 0 
             && gBattleMoves[move].power != 0)
         {
@@ -222,6 +228,7 @@ s32 AI_CalcPartyMonScore(u32 battlerAtk, u32 battlerDef, struct Pokemon *attacke
         }
         if (!GetImprisonedMovesCount(battlerDef, moveTaken) 
             && !IsGravityPreventingMove(moveTaken)
+            && !(choicedUnusableDef & gBitTable[i])
             && gBattleMoves[moveTaken].power != 0)
         {
             dmgTaken = AI_CalcDamage(moveTaken, battlerDef, battlerAtk, &effectiveness, FALSE, FALSE);
@@ -230,14 +237,16 @@ s32 AI_CalcPartyMonScore(u32 battlerAtk, u32 battlerDef, struct Pokemon *attacke
         }
     }
 
-    DebugPrintf("bestDmg: %d", bestDmg);
-    DebugPrintf("bestDmgTaken: %d", bestDmgTaken);
+    //DebugPrintf("bestDmg: %d", bestDmg);
+    //DebugPrintf("bestDmgTaken: %d", bestDmgTaken);
     attackerHP = gBattleMons[battlerAtk].hp;
     defenderHP = gBattleMons[battlerDef].hp;
-    attackerHP = attackerHP - AI_HazardsModifyHP(battlerAtk); //AI is aware of damaging hazards
+    hazardAmount = AI_HazardsModifyHP(battlerAtk);
+    attackerHP = attackerHP - hazardAmount; //AI is aware of damaging hazards
 
-    if (bestDmgTaken >= attackerHP && AI_WhosFaster(battlerAtk, battlerDef) == AI_IS_SLOWER 
-        && !IsBattlerSashSturdyProtected(battlerAtk)
+    if (bestDmgTaken >= attackerHP 
+        && AI_WhosFaster(battlerAtk, battlerDef) == AI_IS_SLOWER 
+        && !(IsBattlerSashSturdyProtected(battlerAtk) && hazardAmount == 0)
         && !IsMimikyuDisguiseProtected(battlerAtk, battlerDef)
         && atkAbility != ABILITY_IMPOSTER)
         score = -1;
@@ -261,10 +270,10 @@ s32 AI_CalcPartyMonScore(u32 battlerAtk, u32 battlerDef, struct Pokemon *attacke
     //Hardswitch AI score adjustments
     if (hardSwitch && GetNoOfHitsToKOBattlerDmg(bestDmgTaken, battlerAtk) == 1)
         score = -2;
-    if (hardSwitch && GetNoOfHitsToKOBattlerDmg(bestDmgTaken, battlerAtk) == 2 && AI_WhosFaster(battlerAtk, battlerDef) == AI_IS_SLOWER)
+    else if (hardSwitch && GetNoOfHitsToKOBattlerDmg(bestDmgTaken, battlerAtk) == 2 && AI_WhosFaster(battlerAtk, battlerDef) == AI_IS_SLOWER)
         score = -1;
 
-    DebugPrintf("Score: %d", score);
+    //DebugPrintf("Score: %d", score);
 
     FreeRestoreBattleMons(savedBattleMons);
     return score;

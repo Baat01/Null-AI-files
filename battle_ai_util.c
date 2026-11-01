@@ -374,7 +374,6 @@ static const u16 sIgnoredPowerfulMoveEffects[] =
     EFFECT_EXPLOSION,
     EFFECT_FINAL_GAMBIT,
     EFFECT_METEOR_BEAM,
-    EFFECT_TWO_TURNS_ATTACK,
     EFFECT_FUTURE_SIGHT,
     EFFECT_FEINT,
     EFFECT_UPPER_HAND,
@@ -974,6 +973,7 @@ s32 AI_CalcDamage(u16 move, u8 battlerAtk, u8 battlerDef, u8 *typeEffectiveness,
 
     if (gBattleMoves[move].effect == EFFECT_BOLT_BEAK 
         || gBattleMoves[move].effect == EFFECT_PAYBACK
+        || gBattleMoves[move].effect == EFFECT_REVENGE
         || gBattleMons[battlerAtk].ability == ABILITY_ANALYTIC
         || gBattleMons[battlerAtk].ability == ABILITY_STAKEOUT)
         gBattleStruct->noDoubleDamage = TRUE;
@@ -2221,6 +2221,21 @@ bool32 HasMoveWithType(u32 battler, u8 type)
     for (i = 0; i < MAX_MON_MOVES; i++)
     {
         if (moves[i] != MOVE_NONE && moves[i] != MOVE_UNAVAILABLE && gBattleMoves[moves[i]].type == type)
+            return TRUE;
+    }
+
+    return FALSE;
+}
+
+bool32 HasProtectionMove(u32 battlerId)
+{
+    s32 i;
+    u16 *moves = GetMovesArray(battlerId);
+
+    for (i = 0; i < MAX_MON_MOVES; i++)
+    {
+        if (moves[i] != MOVE_NONE && moves[i] != MOVE_UNAVAILABLE 
+            && (moves[i] == MOVE_PROTECT || moves[i] == MOVE_DETECT || moves[i] == MOVE_KINGS_SHIELD || moves[i] == MOVE_SPIKY_SHIELD || moves[i] == MOVE_BANEFUL_BUNKER || moves[i] == MOVE_OBSTRUCT || moves[i] == MOVE_SILK_TRAP || moves[i] == MOVE_BURNING_BULWARK))
             return TRUE;
     }
 
